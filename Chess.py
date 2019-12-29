@@ -13,7 +13,7 @@ class Chess:
         self.castling = 'KQkq'
         self.en_passant = '-'
         self.half_clock = 0
-        self.move_number = 0
+        self.move_number = 1
         self.construct()
 
     # Helper method for constructor
@@ -36,6 +36,27 @@ class Chess:
         self.board_map['f'] = 5
         self.board_map['g'] = 6
         self.board_map['h'] = 7
+
+    # Perform a given move
+    def move(self, move):
+        move = move.lower()
+        # assumes format nb1d2
+        if self.turn is 'w':
+            move = move[0].upper() + move[1:]
+        # Check if piece is where it is said to be
+        if self.board[move[2]][self.board_map[move[1]]] is move[0]:
+            # Move the piece
+            self.board[move[2]][self.board_map[move[1]]] = ''
+            self.board[move[4]][self.board_map[move[3]]] = move[0]
+            # Update turn
+            if self.turn is 'w':
+                self.turn = 'b'
+            else:
+                self.turn = 'w'
+                self.move_number += 1
+            return True
+        else:
+            return False
 
     # Returns a FEN string corresponding to the board
     def to_string(self):
