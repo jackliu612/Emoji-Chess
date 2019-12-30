@@ -8,7 +8,7 @@ class Chess:
 
     # Constructor
     def __init__(self):
-        self.board = {}
+        self.board = []
         self.turn = 'w'
         self.castling = 'KQkq'
         self.en_passant = '-'
@@ -19,14 +19,22 @@ class Chess:
     # Helper method for constructor
     def construct(self):
         # Creating the board
-        self.board['8'] = ['r', 'n', 'b', 'q', 'k', 'b', 'n', 'r']
-        self.board['7'] = ['p', 'p', 'p', 'p', 'p', 'p', 'p', 'p']
-        self.board['6'] = ['', '', '', '', '', '', '', '']
-        self.board['5'] = ['', '', '', '', '', '', '', '']
-        self.board['4'] = ['', '', '', '', '', '', '', '']
-        self.board['3'] = ['', '', '', '', '', '', '', '']
-        self.board['2'] = ['P', 'P', 'P', 'P', 'P', 'P', 'P', 'P']
-        self.board['1'] = ['R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R']
+        # self.board['8'] = ['r', 'n', 'b', 'q', 'k', 'b', 'n', 'r']
+        # self.board['7'] = ['p', 'p', 'p', 'p', 'p', 'p', 'p', 'p']
+        # self.board['6'] = ['', '', '', '', '', '', '', '']
+        # self.board['5'] = ['', '', '', '', '', '', '', '']
+        # self.board['4'] = ['', '', '', '', '', '', '', '']
+        # self.board['3'] = ['', '', '', '', '', '', '', '']
+        # self.board['2'] = ['P', 'P', 'P', 'P', 'P', 'P', 'P', 'P']
+        # self.board['1'] = ['R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R']
+        self.board = [['R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R'],
+                      ['P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'],
+                      ['', '', '', '', '', '', '', ''],
+                      ['', '', '', '', '', '', '', ''],
+                      ['', '', '', '', '', '', '', ''],
+                      ['', '', '', '', '', '', '', ''],
+                      ['p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'],
+                      ['r', 'n', 'b', 'q', 'k', 'b', 'n', 'r']]
         # Creating the board map
         self.board_map['a'] = 0
         self.board_map['b'] = 1
@@ -44,10 +52,10 @@ class Chess:
         if self.turn is 'w':
             move = move[0].upper() + move[1:]
         # Check if piece is where it is said to be
-        if self.board[move[2]][self.board_map[move[1]]] is move[0]:
+        if self.board[int(move[2])-1][self.board_map[move[1]]] is move[0]:
             # Move the piece
-            self.board[move[2]][self.board_map[move[1]]] = ''
-            self.board[move[4]][self.board_map[move[3]]] = move[0]
+            self.board[int(move[2])-1][self.board_map[move[1]]] = ''
+            self.board[int(move[4])-1][self.board_map[move[3]]] = move[0]
             # Update turn
             if self.turn is 'w':
                 self.turn = 'b'
@@ -61,20 +69,22 @@ class Chess:
     # Returns a FEN string corresponding to the board
     def to_string(self):
         to_return = ''
+        row_temp = ''
         s_count = 0
-        for key in self.board:
-            for space in self.board[key]:
+        for row in self.board:
+            for space in row:
                 if space is not '':
                     if s_count is not 0:
-                        to_return += str(s_count)
+                        row_temp += str(s_count)
                         s_count = 0
-                    to_return += space
+                    row_temp += space
                 else:
                     s_count += 1
             if s_count is not 0:
-                to_return += str(s_count)
+                row_temp += str(s_count)
                 s_count = 0
-            to_return += '/'
+            to_return = row_temp+'/'+to_return
+            row_temp = ''
         to_return = '{0} {1} {2} {3} {4} {5}'.format(to_return[0:-1], self.turn, self.castling, self.en_passant,
                                                      str(self.half_clock), str(self.move_number))
         return to_return
