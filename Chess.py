@@ -67,6 +67,10 @@ class Chess:
         else:
             return False
 
+    # Reset the chess board
+    def reset(self):
+        self.__init__()
+
     # Returns a FEN string corresponding to the board
     def to_string(self):
         to_return = ''

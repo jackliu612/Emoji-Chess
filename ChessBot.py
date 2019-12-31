@@ -1,14 +1,32 @@
+# bot.py
 import os
-import discord
+import random
+
+from discord.ext import commands
 from dotenv import load_dotenv
+from Chess import EmojiChess
 
 load_dotenv()
 token = os.getenv('DISCORD_TOKEN')
 
-client = discord.Client()
+bot = commands.Bot(command_prefix='!')
+ec = EmojiChess()
 
-@client.event
-async def on_ready():
-    print(f'{client.user} has connected to Discord!')
 
-client.run(token)
+@bot.command(name='show', help='Show chess board')
+async def show(ctx):
+    await ctx.send(ec.emoji_string())
+
+
+@bot.command(name='move', help='Performs a move')
+async def roll(ctx, m):
+    ec.move(m)
+    await ctx.send(ec.turn)
+
+
+@bot.command(name='reset', help='Resets the board')
+async def reset(ctx):
+    ec.reset()
+    await ctx.send('Board Reset!')
+
+bot.run(token)
