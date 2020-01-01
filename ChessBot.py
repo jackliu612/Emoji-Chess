@@ -20,13 +20,23 @@ async def show(ctx):
 
 @bot.command(name='move', help='Performs a move')
 async def roll(ctx, m):
-    ec.move(m)
-    await ctx.send(ec.turn)
+    if ec.move(m):
+        pass
+    else:
+        await ctx.send('You made an invalid move! Please try again.')
 
 
 @bot.command(name='reset', help='Resets the board')
 async def reset(ctx):
     ec.reset()
     await ctx.send('Board Reset!')
+
+
+@bot.command(name='turn', help='Says who\'s turn it currently is')
+async def reset(ctx):
+    if ec.turn is 'w':
+        await ctx.send('It is white\'s turn to move.')
+    else:
+        await ctx.send('It is black\'s turn to move.')
 
 bot.run(token)

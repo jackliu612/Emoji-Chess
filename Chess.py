@@ -48,23 +48,28 @@ class Chess:
 
     # Perform a given move
     def move(self, move):
-        move = move.lower()
-        # assumes format nb1d2
-        if self.turn is 'w':
-            move = move[0].upper() + move[1:]
-        # Check if piece is where it is said to be
-        if self.board[int(move[2]) - 1][self.board_map[move[1]]] is move[0]:
-            # Move the piece
-            self.board[int(move[2]) - 1][self.board_map[move[1]]] = ''
-            self.board[int(move[4]) - 1][self.board_map[move[3]]] = move[0]
-            # Update turn
+        try:
+            move = move.lower()
+            # assumes format nb1d2
             if self.turn is 'w':
-                self.turn = 'b'
+                move = move[0].upper() + move[1:]
+            # Check if piece is where it is said to be
+            if self.board[int(move[2]) - 1][self.board_map[move[1]]] is move[0]:
+                # Move the piece
+                self.board[int(move[2]) - 1][self.board_map[move[1]]] = ''
+                self.board[int(move[4]) - 1][self.board_map[move[3]]] = move[0]
+                # Update turn
+                if self.turn is 'w':
+                    self.turn = 'b'
+                else:
+                    self.turn = 'w'
+                    self.move_number += 1
+                return True
             else:
-                self.turn = 'w'
-                self.move_number += 1
-            return True
-        else:
+                return False
+        except ValueError:
+            return False
+        except IndexError:
             return False
 
     # Reset the chess board
