@@ -2,6 +2,7 @@
 # Author: Jack Liu
 # 12/27/2019
 import pyperclip
+import re
 
 
 class Chess:
@@ -51,15 +52,20 @@ class Chess:
         try:
             move = move.lower()
             # assumes format nb1d2
-            if self.turn is 'w':
+            if self.turn == 'w':
                 move = move[0].upper() + move[1:]
+            piece = move[0]
+            s_row = int(move[2]) - 1
+            s_col = self.board_map[move[1]]
+            e_row = int(move[4]) - 1
+            e_col = self.board_map[move[3]]
             # Check if piece is where it is said to be
-            if self.board[int(move[2]) - 1][self.board_map[move[1]]] is move[0]:
+            if self.move_helper(piece, s_row, s_col, e_row, e_col):
                 # Move the piece
-                self.board[int(move[2]) - 1][self.board_map[move[1]]] = ''
-                self.board[int(move[4]) - 1][self.board_map[move[3]]] = move[0]
+                self.board[s_row][s_col] = ''
+                self.board[e_row][e_col] = piece
                 # Update turn
-                if self.turn is 'w':
+                if self.turn == 'w':
                     self.turn = 'b'
                 else:
                     self.turn = 'w'
@@ -71,6 +77,36 @@ class Chess:
             return False
         except IndexError:
             return False
+
+    # Helper method which determines if move is valid
+    def move_helper(self, piece, s_row, s_col, e_row, e_col):
+        if s_row < 0 or s_row > 7 or s_col < 0 or s_col > 7 or e_row < 0 or e_row > 7 or e_col < 0 or e_col > 7 or self.board[s_row][s_col] != piece:
+            return False
+        if piece == 'p':
+            return True
+        elif piece == 'r':
+            if s_row == e_row:
+                for i in range(s_col, e_col):
+                    if self.board[s_row][i] != '':
+                        return False
+                if self.board[e_row][e_col] != '' and ((self.turn == 'w' and is_white_piece(self.board[e_row][e_col])) or (self.turn == 'b' and not is_white_piece(self.board[e_row][e_col]))):
+                    return False
+            elif s_col == e_col:
+                for i in range(s_row, e_row):
+                    if self.board[i][s_col] != '':
+                        return False
+                if self.board[e_row][e_col] != '' and ((self.turn == 'w' and is_white_piece(self.board[e_row][e_col])) or (self.turn == 'b' and not is_white_piece(self.board[e_row][e_col]))):
+                    return False
+        elif piece is 'n':
+            if (abs(e_row - s_row) == 2 and abs(e_col - s_col) == 1) or (abs(e_row - s_row) == 2 and abs(e_col - s_col) == 1):
+                return True
+            else:
+                return False
+        return self.board[s_row][s_col] is piece
+
+    # Helper method to determine if end location is a valid capture or not
+    def valid_capture(self, piece):
+        return re.match('[PRNBKQ]', piece)
 
     # Reset the chess board
     def reset(self):
