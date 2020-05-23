@@ -82,31 +82,62 @@ class Chess:
     def move_helper(self, piece, s_row, s_col, e_row, e_col):
         if s_row < 0 or s_row > 7 or s_col < 0 or s_col > 7 or e_row < 0 or e_row > 7 or e_col < 0 or e_col > 7 or self.board[s_row][s_col] != piece:
             return False
-        if piece == 'p':
-            return True
-        elif piece == 'r':
-            if s_row == e_row:
-                for i in range(s_col, e_col):
-                    if self.board[s_row][i] != '':
-                        return False
-                if self.board[e_row][e_col] != '' and ((self.turn == 'w' and is_white_piece(self.board[e_row][e_col])) or (self.turn == 'b' and not is_white_piece(self.board[e_row][e_col]))):
-                    return False
-            elif s_col == e_col:
-                for i in range(s_row, e_row):
-                    if self.board[i][s_col] != '':
-                        return False
-                if self.board[e_row][e_col] != '' and ((self.turn == 'w' and is_white_piece(self.board[e_row][e_col])) or (self.turn == 'b' and not is_white_piece(self.board[e_row][e_col]))):
-                    return False
-        elif piece is 'n':
-            if (abs(e_row - s_row) == 2 and abs(e_col - s_col) == 1) or (abs(e_row - s_row) == 2 and abs(e_col - s_col) == 1):
-                return True
-            else:
-                return False
+        if piece.lower() == 'p':
+            self.check_pawn(piece, e_row, e_col)
+        elif piece.lower() == 'r':
+            self.check_rook(piece, e_row, e_col)
+        elif piece.lower() == 'n':
+            self.check_knight(piece, e_row, e_col)
+        elif piece.lower() == 'b':
+            return False
         return self.board[s_row][s_col] is piece
 
+    def check_pawn(self, piece, s_row, s_col, e_row, e_col):
+        return True
+
+    def check_rook(self, piece, s_row, s_col, e_row, e_col):
+        if s_row == e_row:
+            for i in range(s_col, e_col):
+                if self.board[s_row][i] != '':
+                    return False
+        elif s_col == e_col:
+            for i in range(s_row, e_row):
+                if self.board[i][s_col] != '':
+                    return False
+        else:
+            return False
+        return self.valid_end(self, e_row, e_col)
+
+    def check_knight(self, piece, s_row, s_col, e_row, e_col):
+        if (abs(e_row - s_row) == 2 and abs(e_col - s_col) == 1) or (abs(e_row - s_row) == 2 and abs(e_col - s_col) == 1):
+            return self.valid_end(piece, e_row, e_col)
+        else:
+            return False
+
+    def check_bishop(self, piece, s_row, s_col, e_row, e_col):
+        if abs(e_row - s_row) == abs(e_col - s_col):
+            direction = (e_col-s_col)/abs(e_col-s_col)
+            for i in range(s_row, e_row):
+                if self.board[i][s_col+direction*abs(i-s_row)] != '':
+                    return False
+            return self.valid_end(piece, e_row, e_col)
+        else:
+            return False
+
+    def check_queen(self, piece, s_row, s_col, e_row, e_col):
+        return True
+
+    def check_king(self, piece, s_row, s_col, e_row, e_col):
+        return True
+
     # Helper method to determine if end location is a valid capture or not
-    def valid_capture(self, piece):
-        return re.match('[PRNBKQ]', piece)
+    def valid_end(self, piece, e_row, e_col):
+        # White piece
+        if re.match('[PRNBKQ]', piece):
+            return re.match('[prnbkq ]', self.board[e_row][e_col])
+        # Black piece
+        else:
+            return re.match('[PRNBKQ ]', self.board[e_row][e_col])
 
     # Reset the chess board
     def reset(self):
