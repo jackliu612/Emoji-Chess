@@ -3,23 +3,29 @@
 # 12/27/2019
 import pyperclip
 import re
+from PIL import Image
 
 
 class Chess:
     board_map = {}
+    imageDict = {}
 
     # Constructor
-    def __init__(self):
+    def __init__(self, bColor=(0, 0, 0), wColor=(255, 255, 255), pieceSet='pieces.png'):
         self.board = []
         self.turn = 'w'
         self.castling = 'KQkq'
         self.en_passant = '-'
         self.half_clock = 0
         self.move_number = 1
+        self.bColor = bColor
+        self.wColor = wColor
+        self.pieceSet = pieceSet
         self.construct()
 
     # Helper method for constructor
     def construct(self):
+        self.createBoard((0, 0, 0), (255, 255, 255))
         # Creating the board
         # self.board['8'] = ['r', 'n', 'b', 'q', 'k', 'b', 'n', 'r']
         # self.board['7'] = ['p', 'p', 'p', 'p', 'p', 'p', 'p', 'p']
@@ -46,6 +52,34 @@ class Chess:
         self.board_map['f'] = 5
         self.board_map['g'] = 6
         self.board_map['h'] = 7
+
+    # Creates the base board image given two colors
+    def createBoard(self):
+        board = Image.new('RGBA', (64 * 8, 64 * 8), self.bColor)
+        whiteSquare = Image.new('RGB', (64, 64), self.wColor)
+        for r in range(8):
+            for c in range(8):
+                if (r + c) % 2 == 0:
+                    board.paste(whiteSquare, (r * 64, c * 64, (r + 1) * 64, (c + 1) * 64))
+        return board
+
+    # Creates an image dictionary for all the piece images
+    def createImageDict(self):
+        pieces = Image.open(self.pieceSet)
+        # White Pieces
+        self.imageDict['K'] = pieces.crop((0, 64, 64, 128))
+        self.imageDict['Q'] = pieces.crop((64, 64, 128, 128))
+        self.imageDict['R'] = pieces.crop((128, 64, 192, 128))
+        self.imageDict['N'] = pieces.crop((192, 64, 256, 128))
+        self.imageDict['B'] = pieces.crop((256, 64, 320, 128))
+        self.imageDict['P'] = pieces.crop((320, 64, 384, 128))
+        # Black Pieces
+        self.imageDict['k'] = pieces.crop((0, 0, 64, 64))
+        self.imageDict['q'] = pieces.crop((64, 0, 128, 64))
+        self.imageDict['r'] = pieces.crop((128, 0, 192, 64))
+        self.imageDict['n'] = pieces.crop((192, 0, 256, 64))
+        self.imageDict['b'] = pieces.crop((256, 0, 320, 64))
+        self.imageDict['p'] = pieces.crop((320, 0, 384, 64))
 
     # Perform a given move
     def move(self, move):
@@ -116,9 +150,9 @@ class Chess:
 
     def check_bishop(self, piece, s_row, s_col, e_row, e_col):
         if abs(e_row - s_row) == abs(e_col - s_col):
-            direction = (e_col-s_col)/abs(e_col-s_col)
+            direction = (e_col - s_col) / abs(e_col - s_col)
             for i in range(s_row, e_row):
-                if self.board[i][s_col+direction*abs(i-s_row)] != '':
+                if self.board[i][s_col + direction * abs(i - s_row)] != '':
                     return False
             return self.valid_end(piece, e_row, e_col)
         else:
@@ -133,11 +167,11 @@ class Chess:
     # Helper method to determine if end location is a valid capture or not
     def valid_end(self, piece, e_row, e_col):
         # White piece
-        if re.match('[PRNBKQ]', piece):
-            return re.match('[prnbkq ]', self.board[e_row][e_col])
+        if re.match(r'[PRNBKQ]', piece):
+            return re.match(r'[prnbkq ]', self.board[e_row][e_col])
         # Black piece
         else:
-            return re.match('[PRNBKQ ]', self.board[e_row][e_col])
+            return re.match(r'[PRNBKQ ]', self.board[e_row][e_col])
 
     # Reset the chess board
     def reset(self):
